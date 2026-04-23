@@ -1,5 +1,4 @@
 import dotenv from "dotenv";
-
 dotenv.config();
 
 // Convert secret into Uint8Array

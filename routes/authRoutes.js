@@ -1,38 +1,38 @@
 import express from "express";
 import User from "../models/User.js";
-import { generateToken } from "../utils/generateToken.js";
 import { jwtVerify } from "jose";
 import { JWT_SECRET } from "../utils/getJwtSecret.js";
+import { generateToken } from "../utils/generateToken.js";
 
 const router = express.Router();
 
-// POST /api/v1/auth/login - User login
 router.post("/login", async (req, res, next) => {
   try {
     const { username, password } = req.body || {};
 
-    // Validate input
     if (!username || !password) {
       res.status(400);
       throw new Error("Username and password are required");
     }
 
-    // Fetch user by username
+    // Find user
     const user = await User.findByUsername(username);
+
     if (!user) {
       res.status(401);
-      throw new Error("Invalid username or password");
+      throw new Error("Invalid Credentials");
     }
 
-    // Verify password
-    const isPasswordValid = await User.verifyPassword(password, user.pwd_hash);
-    if (!isPasswordValid) {
+    // Check if password matches
+    const isMatch = await User.matchPassword(password, user.pwd_hash);
+
+    if (!isMatch) {
       res.status(401);
-      throw new Error("Invalid username or password");
+      throw new Error("Invalid Credentials");
     }
 
     // Create Tokens
-    const payload = { userId: user.id };
+    const payload = { username: user.username, roles: user.roles };
     const accessToken = await generateToken(payload, "1m");
     const refreshToken = await generateToken(payload, "30d");
 
@@ -41,68 +41,65 @@ router.post("/login", async (req, res, next) => {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-      path: "/",
       maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
     });
 
-    // Return tokens and user info (excluding password hash)
-    res.json({
+    res.status(201).json({
       accessToken,
       user: {
-        id: user.id,
         username: user.username,
+        roles: user.roles,
       },
     });
-  } catch (error) {
-    next(error);
+  } catch (err) {
+    next(err);
   }
 });
 
-// POST /api/v1/auth/refresh - Refresh access token
-router.post("/refresh", async (req, res, next) => {
-  try {
-    // Get refresh token from HTTP-Only cookie
-    const token = req.cookies?.refreshToken;
-
-    if (!token) {
-      res.status(401);
-      throw new Error("Refresh token not found");
-    }
-
-    const { payload } = await jwtVerify(token, JWT_SECRET);
-
-    const user = await User.findById(payload.userId);
-
-    if (!user) {
-      res.status(401);
-      throw new Error("User not found");
-    }
-
-    const newAccessToken = await generateToken({ userId: user.id }, "1m");
-
-    res.json({
-      accessToken: newAccessToken,
-      user: {
-        id: user.id,
-        username: user.username,
-      },
-    });
-  } catch (error) {
-    res.status(401);
-    next(error);
-  }
-});
-
-// POST /api/v1/auth/logout - User logout
 router.post("/logout", (req, res) => {
   res.clearCookie("refreshToken", {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-    path: "/",
   });
 
   res.status(200).json({ message: "Logged out successfully" });
+});
+
+router.post("/refresh", async (req, res, next) => {
+  try {
+    const token = req.cookies?.refreshToken;
+
+    if (!token) {
+      res.status(401);
+      throw new Error("No refresh token");
+    }
+
+    const { payload } = await jwtVerify(token, JWT_SECRET);
+
+    const user = await User.findByUsername(payload.username);
+
+    if (!user) {
+      res.status(401);
+      throw new Error("No user");
+    }
+
+    const newAccessToken = await generateToken(
+      { username: user.username, roles: user.roles },
+      "1m",
+    );
+
+    res.json({
+      accessToken: newAccessToken,
+      user: {
+        username: user.username,
+        roles: user.roles,
+      },
+    });
+  } catch (err) {
+    res.status(401);
+    next(err);
+  }
 });
 
 export default router;

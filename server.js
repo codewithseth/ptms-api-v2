@@ -2,10 +2,10 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
-import authRoutes from "./routes/authRoutes.js";
-import userRoutes from "./routes/userRoutes.js";
-import projectRoutes from "./routes/projectRoutes.js";
-import taskRoutes from "./routes/taskRoutes.js";
+import authRouter from "./routes/authRoutes.js";
+import userRouter from "./routes/userRoutes.js";
+import projectRouter from "./routes/projectRoutes.js";
+import taskRouter from "./routes/taskRoutes.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 
 dotenv.config();
@@ -14,22 +14,19 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // CORS Configuration
-const allowedOrigins = [
-  "http://localhost:5173",
-  "https://project-tracking-system-zcy4.vercel.app",
-];
+const allowedOrigins = ["http://localhost:5173"];
 
 // Middleware
-app.use(cookieParser());
 app.use(cors({ origin: allowedOrigins, credentials: true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
 // Routes
-app.use("/api/v1/auth", authRoutes);
-app.use("/api/v1/users", userRoutes);
-app.use("/api/v1/projects", projectRoutes);
-app.use("/api/v1/tasks", taskRoutes);
+app.use("/api/v1/auth", authRouter);
+app.use("/api/v1/users", userRouter);
+app.use("/api/v1/projects", projectRouter);
+app.use("/api/v1/tasks", taskRouter);
 
 // 404 Error Handling
 app.use((req, res, next) => {
