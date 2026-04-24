@@ -1,13 +1,18 @@
 import pool from "../config/db.js";
 
 class Task {
-  // Fetch all tasks
-  static async findAll() {
+  // Fetch all tasks with pagination
+  static async findAll(limit, offset) {
     try {
       const [tasks] = await pool.query(
-        "SELECT id, project_id, title, description, status, created_at FROM tasks ORDER BY created_at DESC",
+        "SELECT id, project_id, title, description, status, created_at FROM tasks ORDER BY created_at DESC LIMIT ? OFFSET ?",
+        [limit, offset],
       );
-      return tasks;
+      const [countResult] = await pool.query(
+        "SELECT COUNT(*) as total FROM tasks",
+      );
+      const total = countResult[0].total;
+      return { tasks, total, limit, offset };
     } catch (error) {
       throw new Error(`Error fetching tasks: ${error.message}`);
     }

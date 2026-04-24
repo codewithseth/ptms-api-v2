@@ -1,13 +1,17 @@
 import pool from "../config/db.js";
 
 class Project {
-  // Fetch all projects
-  static async findAll() {
+  // Fetch all projects with pagination
+  static async findAll(limit = 10, offset = 0) {
     try {
       const [projects] = await pool.query(
-        "SELECT id, title, description, created_at FROM projects ORDER BY created_at DESC",
+        "SELECT id, title, description, created_at FROM projects ORDER BY created_at DESC LIMIT ? OFFSET ?",
+        [limit, offset],
       );
-      return projects;
+      const [[{ total }]] = await pool.query(
+        "SELECT COUNT(*) as total FROM projects",
+      );
+      return { projects, total, limit, offset };
     } catch (error) {
       throw new Error(`Error fetching projects: ${error.message}`);
     }

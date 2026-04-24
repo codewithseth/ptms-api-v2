@@ -2,6 +2,21 @@ import pool from "../config/db.js";
 import bcrypt from "bcryptjs";
 
 class User {
+  // Fetch all users with pagination
+  static async findAll(limit = 10, offset = 0) {
+    try {
+      const [users] = await pool.query(
+        "SELECT id, username, roles, created_at FROM users ORDER BY created_at DESC LIMIT ? OFFSET ?",
+        [limit, offset],
+      );
+      const [[{ total }]] = await pool.query(
+        "SELECT COUNT(*) as total FROM users",
+      );
+      return { users, total, limit, offset };
+    } catch (error) {
+      throw new Error(`Error fetching users: ${error.message}`);
+    }
+  }
   static async findByUsername(username) {
     try {
       const [users] = await pool.query(

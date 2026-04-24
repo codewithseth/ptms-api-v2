@@ -10,8 +10,29 @@ const router = express.Router();
 // @access          Private
 router.get("/", protect, async (req, res, next) => {
   try {
-    const tasks = await Task.findAll();
-    res.json(tasks);
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit) || 10));
+    const offset = (page - 1) * limit;
+
+    const {
+      tasks,
+      total,
+      limit: pageSize,
+      offset: pageOffset,
+    } = await Task.findAll(limit, offset);
+    const totalPages = Math.ceil(total / limit);
+
+    res.json({
+      data: tasks,
+      pagination: {
+        currentPage: page,
+        pageSize,
+        totalItems: total,
+        totalPages,
+        hasNextPage: page < totalPages,
+        hasPreviousPage: page > 1,
+      },
+    });
   } catch (error) {
     next(error);
   }
