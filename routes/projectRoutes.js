@@ -5,12 +5,35 @@ import { protect } from "../middleware/authMiddleware.js";
 const router = express.Router();
 
 // @route           GET /api/v1/projects
-// @description     Get all projects
+// @description     Get all projects with pagination
 // @access          Private
+// @query           page - Page number (default: 1)
+// @query           limit - Items per page (default: 10)
 router.get("/", protect, async (req, res, next) => {
   try {
-    const projects = await Project.findAll();
-    res.json(projects);
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit) || 10));
+    const offset = (page - 1) * limit;
+
+    const {
+      projects,
+      total,
+      limit: pageSize,
+      offset: pageOffset,
+    } = await Project.findAll(limit, offset);
+    const totalPages = Math.ceil(total / limit);
+
+    res.json({
+      data: projects,
+      pagination: {
+        currentPage: page,
+        pageSize,
+        totalItems: total,
+        totalPages,
+        hasNextPage: page < totalPages,
+        hasPreviousPage: page > 1,
+      },
+    });
   } catch (error) {
     next(error);
   }
