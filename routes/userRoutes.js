@@ -34,6 +34,20 @@ router.get("/", protect, async (req, res, next) => {
   }
 });
 
+router.get("/:id", protect, async (req, res, next) => {
+  const { id } = req.params;
+  try {
+    const user = await User.findById(id);
+    if (!user) {
+      res.status(404);
+      throw new Error("User not found");
+    }
+    res.json(user);
+  } catch (error) {
+    next(error);
+  }
+});
+
 router.post("/", protect, async (req, res, next) => {
   const { username, password, roles = "USER" } = req.body || {};
 
@@ -45,6 +59,45 @@ router.post("/", protect, async (req, res, next) => {
   try {
     const newUser = await User.create({ username, password, roles });
     res.json(newUser);
+  } catch (error) {
+    next(error);
+  }
+});
+
+// update
+router.put("/:id", protect, async (req, res, next) => {
+  const { id } = req.params;
+  const { username, password, roles } = req.body || {};
+
+  if (!username && !password && !roles) {
+    res.status(400);
+    throw new Error(
+      "At least one field (username, password, roles) is required",
+    );
+  }
+
+  try {
+    const updatedUser = await User.update(id, { username, password, roles });
+    if (!updatedUser) {
+      res.status(404);
+      throw new Error("User not found");
+    }
+    res.json(updatedUser);
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.delete("/:id", protect, async (req, res, next) => {
+  const { id } = req.params;
+
+  try {
+    const deletedUser = await User.delete(id);
+    if (deletedUser === 0) {
+      res.status(404);
+      throw new Error("User not found");
+    }
+    res.json({ message: "User deleted successfully" });
   } catch (error) {
     next(error);
   }

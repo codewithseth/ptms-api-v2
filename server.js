@@ -6,6 +6,7 @@ import authRouter from "./routes/authRoutes.js";
 import userRouter from "./routes/userRoutes.js";
 import projectRouter from "./routes/projectRoutes.js";
 import taskRouter from "./routes/taskRoutes.js";
+import dashboardStatsRouter from "./routes/dashboardStats.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 
 dotenv.config();
@@ -30,6 +31,7 @@ app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/projects", projectRouter);
 app.use("/api/v1/tasks", taskRouter);
+app.use("/api/v1/dashboard-stats", dashboardStatsRouter);
 
 // 404 Error Handling
 app.use((req, res, next) => {
