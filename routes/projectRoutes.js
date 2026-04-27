@@ -4,11 +4,7 @@ import { protect } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-// @route           GET /api/v1/projects
-// @description     Get all projects with pagination
-// @access          Private
-// @query           page - Page number (default: 1)
-// @query           limit - Items per page (default: 10)
+// find all projects
 router.get("/", protect, async (req, res, next) => {
   try {
     const page = Math.max(1, parseInt(req.query.page) || 1);
@@ -39,9 +35,7 @@ router.get("/", protect, async (req, res, next) => {
   }
 });
 
-// @route           GET /api/v1/projects/:id
-// @description     Get a project by ID
-// @access          Private
+// find project by id
 router.get("/:id", protect, async (req, res, next) => {
   const { id } = req.params;
   try {
@@ -56,9 +50,7 @@ router.get("/:id", protect, async (req, res, next) => {
   }
 });
 
-// @route           POST /api/v1/projects
-// @description     Create a new project
-// @access          Private
+// create project
 router.post("/", protect, async (req, res, next) => {
   const { title, description } = req.body || {};
 
@@ -75,9 +67,7 @@ router.post("/", protect, async (req, res, next) => {
   }
 });
 
-// @route           PUT /api/v1/projects/:id
-// @description     Update a project
-// @access          Private
+// update project by id
 router.put("/:id", protect, async (req, res, next) => {
   const { id } = req.params;
   const { title, description } = req.body || {};
@@ -99,9 +89,7 @@ router.put("/:id", protect, async (req, res, next) => {
   }
 });
 
-// @route           DELETE /api/v1/projects/:id
-// @description     Delete a project
-// @access          Private
+// delete project by id
 router.delete("/:id", protect, async (req, res, next) => {
   const { id } = req.params;
 

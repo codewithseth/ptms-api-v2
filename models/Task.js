@@ -1,8 +1,7 @@
 import pool from "../config/db.js";
 
 class Task {
-  // Fetch all tasks with pagination
-  static async findAll(limit, offset) {
+  static async findAll(limit = 10, offset = 0) {
     try {
       const [tasks] = await pool.query(
         "SELECT id, project_id, title, description, status, created_at FROM tasks ORDER BY created_at DESC LIMIT ? OFFSET ?",
@@ -18,20 +17,6 @@ class Task {
     }
   }
 
-  // Fetch tasks by project ID
-  static async findByProjectId(project_id) {
-    try {
-      const [tasks] = await pool.query(
-        "SELECT id, project_id, title, description, status, created_at FROM tasks WHERE project_id = ? ORDER BY created_at DESC",
-        [project_id],
-      );
-      return tasks;
-    } catch (error) {
-      throw new Error(`Error fetching tasks by project ID: ${error.message}`);
-    }
-  }
-
-  // Fetch a task by ID
   static async findById(id) {
     try {
       const [tasks] = await pool.query(
@@ -44,7 +29,6 @@ class Task {
     }
   }
 
-  // Create a new task
   static async create(project_id, title, description, status) {
     try {
       const [result] = await pool.query(
@@ -64,7 +48,6 @@ class Task {
     }
   }
 
-  // Update a task
   static async update(id, title, description, status) {
     try {
       const [result] = await pool.query(
@@ -77,7 +60,6 @@ class Task {
     }
   }
 
-  // Delete a task
   static async delete(id) {
     try {
       const [result] = await pool.query("DELETE FROM tasks WHERE id = ?", [id]);

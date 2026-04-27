@@ -5,9 +5,7 @@ import Project from "../models/Project.js";
 
 const router = express.Router();
 
-// @route           GET /api/v1/tasks
-// @description     Get all tasks
-// @access          Private
+// find all tasks
 router.get("/", protect, async (req, res, next) => {
   try {
     const page = Math.max(1, parseInt(req.query.page) || 1);
@@ -38,22 +36,7 @@ router.get("/", protect, async (req, res, next) => {
   }
 });
 
-// @route           GET /api/v1/tasks/project/:project_id
-// @description     Get all tasks for a specific project
-// @access          Private
-router.get("/project/:project_id", protect, async (req, res, next) => {
-  const { project_id } = req.params;
-  try {
-    const tasks = await Task.findByProjectId(project_id);
-    res.json(tasks);
-  } catch (error) {
-    next(error);
-  }
-});
-
-// @route           GET /api/v1/tasks/:id
-// @description     Get a task by ID
-// @access          Private
+// find task by id
 router.get("/:id", protect, async (req, res, next) => {
   const { id } = req.params;
   try {
@@ -68,9 +51,7 @@ router.get("/:id", protect, async (req, res, next) => {
   }
 });
 
-// @route           POST /api/v1/tasks
-// @description     Create a new task
-// @access          Private
+// create task
 router.post("/", protect, async (req, res, next) => {
   const { project_id, title, description, status } = req.body || {};
 
@@ -98,9 +79,7 @@ router.post("/", protect, async (req, res, next) => {
   }
 });
 
-// @route           PUT /api/v1/tasks/:id
-// @description     Update a task
-// @access          Private
+// update task by id
 router.put("/:id", protect, async (req, res, next) => {
   const { id } = req.params;
   const { title, description, status } = req.body || {};
@@ -127,9 +106,7 @@ router.put("/:id", protect, async (req, res, next) => {
   }
 });
 
-// @route           DELETE /api/v1/tasks/:id
-// @description     Delete a task
-// @access          Private
+// delete task by id
 router.delete("/:id", protect, async (req, res, next) => {
   const { id } = req.params;
 

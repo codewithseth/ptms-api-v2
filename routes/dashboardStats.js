@@ -5,7 +5,7 @@ import { protect } from "../middleware/authMiddleware.js";
 const router = express.Router();
 
 // Get dashboard statistics
-router.get("/", protect, async (req, res) => {
+router.get("/", protect, async (req, res, next) => {
   try {
     // Get total users count
     const [[{ totalUsers }]] = await pool.query(
@@ -37,7 +37,7 @@ router.get("/", protect, async (req, res) => {
       tasksTodo: tasksTodo || 0,
     });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    next(error);
   }
 });
 

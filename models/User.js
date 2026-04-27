@@ -20,7 +20,7 @@ class User {
   static async findById(id) {
     try {
       const [users] = await pool.query(
-        "SELECT id, username FROM users WHERE id = ?",
+        "SELECT id, username, roles, created_at FROM users WHERE id = ?",
         [id],
       );
       return users[0];
@@ -56,15 +56,18 @@ class User {
         fields.push("username = ?");
         values.push(user.username);
       }
+
       if (user.password) {
         const hashedPassword = await bcrypt.hash(user.password, 10);
         fields.push("pwd_hash = ?");
         values.push(hashedPassword);
       }
+
       if (user.roles) {
         fields.push("roles = ?");
         values.push(user.roles);
       }
+
       if (fields.length === 0) {
         throw new Error("No fields to update");
       }

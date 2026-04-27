@@ -4,6 +4,7 @@ import User from "../models/User.js";
 
 const router = express.Router();
 
+// find all users
 router.get("/", protect, async (req, res, next) => {
   try {
     const page = Math.max(1, parseInt(req.query.page) || 1);
@@ -34,6 +35,7 @@ router.get("/", protect, async (req, res, next) => {
   }
 });
 
+// find user by id
 router.get("/:id", protect, async (req, res, next) => {
   const { id } = req.params;
   try {
@@ -48,8 +50,9 @@ router.get("/:id", protect, async (req, res, next) => {
   }
 });
 
+// create user
 router.post("/", protect, async (req, res, next) => {
-  const { username, password, roles = "USER" } = req.body || {};
+  const { username, password, roles = "Developer" } = req.body || {};
 
   if (!username || !password) {
     res.status(400);
@@ -64,7 +67,7 @@ router.post("/", protect, async (req, res, next) => {
   }
 });
 
-// update
+// update user by id
 router.put("/:id", protect, async (req, res, next) => {
   const { id } = req.params;
   const { username, password, roles } = req.body || {};
@@ -82,12 +85,13 @@ router.put("/:id", protect, async (req, res, next) => {
       res.status(404);
       throw new Error("User not found");
     }
-    res.json(updatedUser);
+    res.json({ message: "User updated successfully" });
   } catch (error) {
     next(error);
   }
 });
 
+// delete user by id
 router.delete("/:id", protect, async (req, res, next) => {
   const { id } = req.params;
 

@@ -1,7 +1,6 @@
 import pool from "../config/db.js";
 
 class Project {
-  // Fetch all projects with pagination
   static async findAll(limit = 10, offset = 0) {
     try {
       const [projects] = await pool.query(
@@ -17,7 +16,6 @@ class Project {
     }
   }
 
-  // Fetch a project by ID
   static async findById(id) {
     try {
       const [projects] = await pool.query(
@@ -30,7 +28,6 @@ class Project {
     }
   }
 
-  // Create a new project
   static async create(title, description) {
     try {
       const [result] = await pool.query(
@@ -48,7 +45,6 @@ class Project {
     }
   }
 
-  // Update a project
   static async update(id, title, description) {
     try {
       const [result] = await pool.query(
@@ -61,7 +57,6 @@ class Project {
     }
   }
 
-  // Delete a project
   static async delete(id) {
     try {
       const [result] = await pool.query("DELETE FROM projects WHERE id = ?", [
