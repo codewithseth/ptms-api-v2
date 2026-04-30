@@ -4,7 +4,7 @@ class Task {
   static async findAll(limit = 10, offset = 0) {
     try {
       const [tasks] = await pool.query(
-        "SELECT id, project_id, title, description, status, created_at FROM tasks ORDER BY created_at DESC LIMIT ? OFFSET ?",
+        "SELECT t.*, p.title AS project_name FROM tasks t JOIN projects p ON t.project_id = p.id ORDER BY t.created_at DESC LIMIT ? OFFSET ?;",
         [limit, offset],
       );
       const [countResult] = await pool.query(
